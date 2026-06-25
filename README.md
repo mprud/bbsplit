@@ -1,7 +1,9 @@
 <p align="center">
   <img src="banner.png" alt="bbsplit — Building Block Splitter & Enumerator" width="900">
 </p>
+
 # bbsplit — Building Block Splitter & Enumerator
+
 **bbsplit** breaks molecules into building blocks using a base of retrosynthetic
 SMARTS rules, shows **every possible way** to disconnect each molecule, and runs
 a **combinatorial enumeration** of the blocks back into new compounds. It ships
@@ -35,6 +37,10 @@ enumeration **in parallel** across multiple CPU cores.
   TPSA, rotatable bonds, ring count, aromatic ring count, heavy-atom count and
   fraction sp3. The GUI table sorts by any descriptor (click a header); the CLI
   sorts via `--sort-by`.
+- **Synthesizability score.** Each product gets a synthetic-accessibility score
+  (SAScore, 1 = easy … 10 = hard) plus a normalised `SA_ease` in [0, 1]. In the
+  GUI the SAScore cell is **colour-coded green → red** (easy → hard). See the
+  note below on RAScore.
 - **Inline product structures** rendered in the results table.
 - **Stable IDs.** Products get IDs like `ENU0001` (≥3 letters + digits); blocks
   use `A0001` / `B0001`.
@@ -137,12 +143,14 @@ See [`custom_rules.example.yaml`](custom_rules.example.yaml) for adding your own
 from bbsplit.core import RuleSet, SplitEngine, combine_two
 from bbsplit.parallel import split_molecules, enumerate_blocks_parallel
 from bbsplit.descriptors import compute_descriptors
+from bbsplit.synth import sa_score, sa_ease
 from bbsplit import io_formats
 
 mols = io_formats.detect_and_read("library.sdf")           # or read_csv(...)
 disc = split_molecules(mols, RuleSet.default(), max_bonds=2, workers=4)
 products = enumerate_blocks_parallel(pool_a, pool_b, dedup=True, workers=4)
 compute_descriptors("CC(=O)Nc1ccccc1")                     # -> dict of descriptors
+sa_score("CC(=O)Nc1ccccc1")                                # -> SAScore (1 easy..10 hard)
 ```
 
 ---
@@ -157,6 +165,7 @@ bbsplit/
 │   ├── core.py                # engine: rules, disconnection, enumeration
 │   ├── parallel.py            # parallel split & enumeration (processes)
 │   ├── descriptors.py         # molecular descriptor calculation
+│   ├── synth.py               # synthesizability score (SAScore; optional RAScore)
 │   ├── io_formats.py          # CSV / SMI / TXT / SDF readers
 │   ├── gui.py                 # PySide6 interface (styled)
 │   ├── render.py              # molecule rendering for the GUI
@@ -176,6 +185,30 @@ bbsplit/
 ```bash
 pytest -q
 ```
+
+---
+
+## Synthesizability scoring (SAScore, and a note on RAScore)
+
+Each enumerated product is scored for how hard it is likely to be to make:
+
+- **SAScore** (Ertl & Schuffenhauer, *J. Cheminform.* 2009), shipped with RDKit's
+  Contrib directory. Scale **1 (easy) … 10 (hard)**. bbsplit also reports
+  `SA_ease` = a normalised ease in `[0, 1]` (1 = easy). The GUI colour-codes the
+  SAScore cell green → red.
+
+This project originally targeted **RAScore**
+(https://github.com/reymond-group/RAscore), which predicts the probability that a
+computer-aided synthesis-planning tool can find a route to a molecule. RAScore
+pins hard, legacy dependencies (`python==3.7/3.8`, `scikit-learn==0.22.1`,
+`xgboost==1.0.2`, `tensorflow==2.5.0`) that are **incompatible** with bbsplit's
+modern stack and break RDKit/PySide6 if installed in the same environment. So
+SAScore is used as a dependency-free default.
+
+bbsplit will, however, **use RAScore automatically if it is importable** in the
+running environment: if you set up a compatible Python 3.7/3.8 environment with
+RAScore installed, an extra `RAscore` column (probability, 1 = route found) is
+added alongside SAScore. Otherwise it falls back to SAScore silently.
 
 ---
 
