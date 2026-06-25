@@ -1,3 +1,4 @@
+![bbsplit banner](banner.png)
 # bbsplit — Building Block Splitter & Enumerator
 
 **bbsplit** breaks molecules into building blocks using a base of retrosynthetic
