@@ -153,41 +153,6 @@ compute_descriptors("CC(=O)Nc1ccccc1")                     # -> dict of descript
 sa_score("CC(=O)Nc1ccccc1")                                # -> SAScore (1 easy..10 hard)
 ```
 
----
-
-## Project layout
-
-```
-bbsplit/
-├── app.py                     # GUI launcher
-├── cli.py                     # headless CLI (CSV/SMI/TXT/SDF)
-├── bbsplit/
-│   ├── core.py                # engine: rules, disconnection, enumeration
-│   ├── parallel.py            # parallel split & enumeration (processes)
-│   ├── descriptors.py         # molecular descriptor calculation
-│   ├── synth.py               # synthesizability score (SAScore; optional RAScore)
-│   ├── io_formats.py          # CSV / SMI / TXT / SDF readers
-│   ├── gui.py                 # PySide6 interface (styled)
-│   ├── render.py              # molecule rendering for the GUI
-│   └── default_rules.yaml     # default rule base
-├── examples/                  # sample_input.csv / .smi / .sdf
-├── custom_rules.example.yaml
-├── tests/test_core.py
-├── requirements.txt
-├── environment.yml
-└── pyproject.toml
-```
-
----
-
-## Tests
-
-```bash
-pytest -q
-```
-
----
-
 ## Synthesizability scoring (SAScore, and a note on RAScore)
 
 Each enumerated product is scored for how hard it is likely to be to make:
