@@ -1,6 +1,6 @@
-![bbsplit banner](banner.png)
-# bbsplit — Building Block Splitter & Enumerator
 
+# bbsplit — Building Block Splitter & Enumerator
+![bbsplit banner](banner.png)
 **bbsplit** breaks molecules into building blocks using a base of retrosynthetic
 SMARTS rules, shows **every possible way** to disconnect each molecule, and runs
 a **combinatorial enumeration** of the blocks back into new compounds. It ships
